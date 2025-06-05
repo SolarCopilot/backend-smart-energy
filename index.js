@@ -57,31 +57,35 @@ app.post("/api/zapier-webhook", async (req, res) => {
 });
 
 app.post("/api/solarcopilot", async (req, res) => {
-    const { data } = req.body;
-  
-    async function postToSolarCopilot(data) {
-      const response = await fetch(
-        `https://solarcopilot.leadbyte.co.uk/restapi/v1.3/leads`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X_KEY': '7644d21b4597db181c55097f72c1eaa9'
-          },
-          body: JSON.stringify(data)
-        }
-      );
-      return response.json();
+  const { data } = req.body;
+
+  async function postToSolarCopilot(data) {
+    const response = await fetch(
+      `https://solarcopilot.leadbyte.co.uk/restapi/v1.3/leads`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          X_KEY: "7644d21b4597db181c55097f72c1eaa9",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const responseBody = await response.text();
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  
-    try {
-      const response2 = await postToSolarCopilot(data);
-      res.status(200).json({ status: "Success", data: response2 });
-    } catch (error) {
-      console.error("Error posting to SolarCopilot:", error);
-      res.status(500).json({ status: "Internal Server Error" });
-    }
-  });
+    return JSON.parse(responseBody);
+  }
+
+  try {
+    const response2 = await postToSolarCopilot(data);
+    res.status(200).json({ status: "Success", data: response2 });
+  } catch (error) {
+    res.status(500).json({ status: "Internal Server Error" });
+  }
+});
 
 // Start the server (for local dev)
 if (require.main === module) {
