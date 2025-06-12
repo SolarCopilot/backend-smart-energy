@@ -22,7 +22,7 @@ app.post("/api/zapier-webhook", async (req, res) => {
   const { data } = req.body;
 
   if (!data) {
-    console.log("No data provided in request");
+    console.log("No data provided in Zapier webhook request");
     return res
       .status(400)
       .json({ status: "error", message: "No data provided" });
@@ -47,7 +47,7 @@ app.post("/api/zapier-webhook", async (req, res) => {
     }
 
     const responseData = await response.json();
-    console.log("Zapier response:", responseData);
+    console.log("Zapier API response:", responseData);
 
     if (responseData.status === "success") {
       console.log("Zapier webhook successful");
