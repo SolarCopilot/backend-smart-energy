@@ -22,12 +22,14 @@ app.post("/api/zapier-webhook", async (req, res) => {
   const { data } = req.body;
 
   if (!data) {
+    console.log("No data provided in Zapier webhook request");
     return res
       .status(400)
       .json({ status: "error", message: "No data provided" });
   }
 
   try {
+    console.log("Sending data to Zapier:", data);
     const response = await fetch(
       "https://hooks.zapier.com/hooks/catch/4525203/21zk4op/",
       {
@@ -40,12 +42,15 @@ app.post("/api/zapier-webhook", async (req, res) => {
     );
 
     if (!response.ok) {
+      console.error("Zapier API error:", response.status);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const responseData = await response.json();
+    console.log("Zapier API response:", responseData);
 
     if (responseData.status === "success") {
+      console.log("Zapier webhook successful");
       res.status(200).json({ status: "Success", data: responseData });
     } else {
       console.log("Zapier webhook failed:", responseData);
@@ -62,6 +67,7 @@ app.post("/api/solarcopilot", async (req, res) => {
   const { data } = req.body;
 
   async function postToSolarCopilot(data) {
+    console.log("Sending data to SolarCopilot:", data);
     const response = await fetch(
       `https://solarcopilot.leadbyte.co.uk/restapi/v1.3/leads`,
       {
@@ -74,6 +80,7 @@ app.post("/api/solarcopilot", async (req, res) => {
       }
     );
     const responseBody = await response.text();
+    console.log("SolarCopilot raw response:", responseBody);
 
     if (!response.ok) {
       console.error("SolarCopilot API error:", response.status);
@@ -84,6 +91,7 @@ app.post("/api/solarcopilot", async (req, res) => {
 
   try {
     const response2 = await postToSolarCopilot(data);
+    console.log("SolarCopilot successful response:", response2);
     res.status(200).json({ status: "Success", data: response2 });
   } catch (error) {
     console.error("SolarCopilot error:", error);
