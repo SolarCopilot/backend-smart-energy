@@ -5,19 +5,36 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS configuration for all routes
+// CORS configuration for specific domains
+const allowedOrigins = [
+  "https://app.heyflow.com",
+  "https://quiz.smartenergygeeks.com",
+];
+
 app.use(
   cors({
-    origin: ["https://quiz.smartenergygeeks.com", "https://app.heyflow.com"],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
     allowedHeaders: [
-      "Origin", 
-      "X-Requested-With", 
-      "Content-Type", 
-      "Accept", 
-      "Authorization"
-    ]
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "Authorization",
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Headers",
+      "Access-Control-Allow-Methods",
+    ],
   })
 );
 
@@ -26,6 +43,20 @@ app.use(express.json());
 
 // Preflight handler for all routes
 app.options("*", cors());
+
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  next();
+});
 
 app.post("/api/zapier-webhook", async (req, res) => {
   console.log("Received Zapier webhook request:", req.body);
@@ -110,18 +141,33 @@ app.post("/api/solarcopilot", async (req, res) => {
 });
 
 // Apply CORS to twilio routes specifically
-app.use("/twilio-sms", cors({
-  origin: ["https://quiz.smartenergygeeks.com", "https://app.heyflow.com"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: [
-    "Origin", 
-    "X-Requested-With", 
-    "Content-Type", 
-    "Accept", 
-    "Authorization"
-  ]
-}), twilioRouter);
+app.use(
+  "/twilio-sms",
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "Authorization",
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Headers",
+      "Access-Control-Allow-Methods",
+    ],
+  }),
+  twilioRouter
+);
 
 // Start the server (for local dev)
 if (require.main === module) {
