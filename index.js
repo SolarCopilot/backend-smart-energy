@@ -5,28 +5,27 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// CORS configuration for all routes
 app.use(
   cors({
     origin: ["https://quiz.smartenergygeeks.com", "https://app.heyflow.com"],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    allowedHeaders: [
+      "Origin", 
+      "X-Requested-With", 
+      "Content-Type", 
+      "Accept", 
+      "Authorization"
+    ]
   })
 );
 
-// Middleware to parse JSON and handle CORS
+// Middleware to parse JSON
 app.use(express.json());
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
+
+// Preflight handler for all routes
+app.options("*", cors());
 
 app.post("/api/zapier-webhook", async (req, res) => {
   console.log("Received Zapier webhook request:", req.body);
@@ -110,7 +109,19 @@ app.post("/api/solarcopilot", async (req, res) => {
   }
 });
 
-app.use("/twilio-sms", twilioRouter, cors());
+// Apply CORS to twilio routes specifically
+app.use("/twilio-sms", cors({
+  origin: ["https://quiz.smartenergygeeks.com", "https://app.heyflow.com"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: [
+    "Origin", 
+    "X-Requested-With", 
+    "Content-Type", 
+    "Accept", 
+    "Authorization"
+  ]
+}), twilioRouter);
 
 // Start the server (for local dev)
 if (require.main === module) {
