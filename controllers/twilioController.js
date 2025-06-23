@@ -13,6 +13,14 @@ const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
 });
 
 const sendOTP = async (req, res, next) => {
+  // Set CORS headers explicitly
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Requested-With"
+  );
+
   const { countryCode, phoneNumber } = req.body;
   console.log(
     `sendOTP called with countryCode: ${countryCode}, phoneNumber: ${phoneNumber}`
@@ -44,6 +52,14 @@ const sendOTP = async (req, res, next) => {
 };
 
 const verifyOTP = async (req, res, next) => {
+  // Set CORS headers explicitly
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Requested-With"
+  );
+
   const { countryCode, phoneNumber, otp } = req.body;
   console.log(
     `verifyOTP called with countryCode: ${countryCode}, phoneNumber: ${phoneNumber}, otp: ${otp}`

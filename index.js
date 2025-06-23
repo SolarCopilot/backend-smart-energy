@@ -9,8 +9,19 @@ const PORT = process.env.PORT || 3000;
 const corsOptions = {
   origin: "*",
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+    "Access-Control-Request-Method",
+    "Access-Control-Request-Headers",
+  ],
+  exposedHeaders: ["*"],
+  optionsSuccessStatus: 200,
+  preflightContinue: false,
 };
 
 // Middleware to parse JSON
@@ -100,6 +111,9 @@ app.post("/api/solarcopilot", async (req, res) => {
     res.status(500).json({ status: "Internal Server Error" });
   }
 });
+
+// Handle preflight OPTIONS requests for Twilio routes
+app.options("/twilio-sms/*", cors(corsOptions));
 
 // Apply twilio routes with CORS
 app.use("/twilio-sms", cors(corsOptions), twilioRouter);
