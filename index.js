@@ -5,7 +5,6 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Simple CORS configuration - allow all origins
 app.use(cors());
 
 // Middleware to parse JSON
