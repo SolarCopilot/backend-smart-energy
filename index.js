@@ -5,30 +5,26 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure CORS to allow all origins for Twilio
-const corsOptions = {
-  origin: "*",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Accept",
-    "Origin",
-    "Access-Control-Request-Method",
-    "Access-Control-Request-Headers",
-  ],
-  exposedHeaders: ["*"],
-  optionsSuccessStatus: 200,
-  preflightContinue: false,
-};
-
 // Middleware to parse JSON
 app.use(express.json());
 
-// Apply CORS middleware
-app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // або твій домен
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Requested-With"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 app.post("/api/zapier-webhook", async (req, res) => {
   console.log("Received Zapier webhook request:", req.body);
@@ -112,13 +108,8 @@ app.post("/api/solarcopilot", async (req, res) => {
   }
 });
 
-// Handle preflight OPTIONS requests for Twilio routes
-app.options("/twilio-sms/*", cors(corsOptions));
+app.use("/twilio-sms", twilioRouter);
 
-// Apply twilio routes with CORS
-app.use("/twilio-sms", cors(corsOptions), twilioRouter);
-
-// Start the server (for local dev)
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
