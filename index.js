@@ -1,8 +1,17 @@
 const express = require("express");
 const twilioRouter = require("./routes/twilioRoutes");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(
+  cors({
+    origin: ["https://quiz.smartenergygeeks.com", "https://app.heyflow.com"],
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
 
 // Middleware to parse JSON and handle CORS
 app.use(express.json());
