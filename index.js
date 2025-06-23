@@ -6,15 +6,18 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Configure CORS to allow all origins for Twilio
-app.use(cors({
+const corsOptions = {
   origin: "*",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
-}));
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
 
 // Middleware to parse JSON
 app.use(express.json());
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
 app.post("/api/zapier-webhook", async (req, res) => {
   console.log("Received Zapier webhook request:", req.body);
@@ -98,8 +101,8 @@ app.post("/api/solarcopilot", async (req, res) => {
   }
 });
 
-// Apply twilio routes
-app.use("/twilio-sms", twilioRouter);
+// Apply twilio routes with CORS
+app.use("/twilio-sms", cors(corsOptions), twilioRouter);
 
 // Start the server (for local dev)
 if (require.main === module) {
