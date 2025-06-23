@@ -1,4 +1,6 @@
 const express = require("express");
+const twilioRouter = require("./routes/twilioRoutes");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -98,6 +100,8 @@ app.post("/api/solarcopilot", async (req, res) => {
     res.status(500).json({ status: "Internal Server Error" });
   }
 });
+
+app.use("/twilio-sms", twilioRouter);
 
 // Start the server (for local dev)
 if (require.main === module) {
