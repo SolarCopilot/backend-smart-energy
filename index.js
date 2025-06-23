@@ -110,7 +110,7 @@ app.post("/api/solarcopilot", async (req, res) => {
   }
 });
 
-app.use("/twilio-sms", twilioRouter);
+app.use("/twilio-sms", twilioRouter, cors());
 
 // Start the server (for local dev)
 if (require.main === module) {
