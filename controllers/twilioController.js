@@ -39,7 +39,7 @@ const sendOTP = async (req, res, next) => {
     );
     res
       .status(200)
-      .send(`OTP sent successfully! ${JSON.stringify(otpResponse)}`);
+      .send(`OTP sent successfully!`);
   } catch (error) {
     res.status(error?.status || 400).send({
       message:
